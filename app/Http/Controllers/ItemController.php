@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Item;
+use Illuminate\Support\Facades\Redirect;
 
 class ItemController extends Controller
 {
@@ -11,7 +13,8 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
+        $items = Item::all();
+        return view('items.index', compact('items'));
     }
 
     /**
@@ -19,7 +22,7 @@ class ItemController extends Controller
      */
     public function create()
     {
-        //
+        return view('items.create');
     }
 
     /**
@@ -27,7 +30,16 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'serial_number' => 'required|string|max:255|unique:items',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        Item::create($validated);
+        return redirect()->route('items.index')->with('success', 'Item created successfully');
     }
 
     /**
@@ -43,7 +55,8 @@ class ItemController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $items = Item::find($id);
+        return view('items.edit', compact('item'));
     }
 
     /**
@@ -51,7 +64,16 @@ class ItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validete([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0'
+        ]);
+
+        $item = item::find($id);
+        $item->update($validated);
+        return redirect()->route('items.index');
     }
 
     /**
@@ -59,6 +81,8 @@ class ItemController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $item = Item::find($id);
+        $item->delete();
+        return redirect()->route('items.index');
     }
 }
